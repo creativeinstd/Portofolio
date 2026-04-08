@@ -37,8 +37,16 @@
         
         #modalSlider { scroll-snap-type: x mandatory; scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
         #modalSlider::-webkit-scrollbar { display: none; }
-        .slide-item { scroll-snap-align: center; flex-shrink: 0; width: 100%; display: flex; justify-content: center; align-items: center; }
-    </style>
+        .slide-item { 
+        scroll-snap-align: center; 
+        flex-shrink: 0; 
+        width: 100%; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        padding: 0 20px; /* Jarak kiri-kanan gambar (Total gap antar gambar jadi 40px) */
+    }
+</style>
 </head>
 
 <body class="bg-white text-black dark:bg-black dark:text-white">
