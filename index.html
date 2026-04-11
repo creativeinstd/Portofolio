@@ -386,59 +386,31 @@
         const dotsContainer = document.getElementById('modalDots');
         const modalCategory = document.getElementById('modalCategory');
 
-        function openPreview(element) {
-    const images = element.getAttribute('data-images').split(',');
-    const category = element.getAttribute('data-category');
-    modalCategory.innerText = category || 'Work';
-    slider.innerHTML = ''; 
-    dotsContainer.innerHTML = '';
+         function openPreview(element) {
+            const images = element.getAttribute('data-images').split(',');
+            const category = element.getAttribute('data-category');
+            modalCategory.innerText = category || 'Work';
+            slider.innerHTML = ''; dotsContainer.innerHTML = '';
 
-    // A. PROSES PEMBUATAN GAMBAR SLIDE (Tetap sesuai jumlah foto)
-    images.forEach((src) => {
-        const slide = document.createElement('div');
-        slide.className = 'slide-item';
-        slide.innerHTML = `<img src="${src.trim()}" class="max-h-[75vh] w-auto object-contain rounded-2xl md:rounded-[40px] shadow-2xl transition">`;
-        slider.appendChild(slide);
-    });
+            images.forEach((src, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide-item';
+                slide.innerHTML = `<img src="${src.trim()}" class="max-h-[75vh] w-auto object-contain rounded-2xl md:rounded-[40px] shadow-2xl transition">`;
+                slider.appendChild(slide);
+                const dot = document.createElement('div');
+                dot.className = `w-2 h-2 rounded-full bg-white/30 transition-all dot-indicator ${index === 0 ? 'bg-orange-500 w-4' : ''}`;
+                dotsContainer.appendChild(dot);
+            });
 
-    // B. PROSES PEMBUATAN TITIK/DOTS (Dibatasi Maksimal 5)
-    const dotCount = Math.min(images.length, 5); // Mengunci angka maksimal di 5
-    for(let i = 0; i < dotCount; i++) {
-        const dot = document.createElement('div');
-        // i === 0 artinya titik pertama otomatis menyala orange saat dibuka
-        dot.className = `w-2 h-2 rounded-full bg-white/30 transition-all dot-indicator ${i === 0 ? 'bg-orange-500 w-4' : ''}`;
-        dotsContainer.appendChild(dot);
-    }
-
-    modal.classList.remove('hidden'); 
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-
-    // C. LOGIKA SAAT GESER (Mapping Foto ke 5 Titik)
-    slider.onscroll = () => {
-        const totalImages = images.length;
-        const activeIndex = Math.round(slider.scrollLeft / slider.offsetWidth);
-        const dots = document.querySelectorAll('.dot-indicator');
-        
-        let dotToHighlight;
-        if (totalImages <= 5) {
-            dotToHighlight = activeIndex; // Jika foto sedikit, nyalakan titik 1 per 1
-        } else {
-            // Jika foto banyak (misal 10), gunakan rumus matematika agar 10 foto muat di 5 titik
-            dotToHighlight = Math.floor((activeIndex / (totalImages - 1)) * 4);
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            slider.onscroll = () => {
+                const activeIndex = Math.round(slider.scrollLeft / slider.offsetWidth);
+                document.querySelectorAll('.dot-indicator').forEach((dot, i) => {
+                    dot.className = `w-2 h-2 rounded-full transition-all dot-indicator ${i === activeIndex ? 'bg-orange-500 w-4' : 'bg-white/30'}`;
+                });
+            };
         }
-
-        dots.forEach((dot, i) => {
-            if(i === dotToHighlight) {
-                dot.classList.add('bg-orange-500', 'w-4'); // Nyala orange & melebar
-                dot.classList.remove('bg-white/30');
-            } else {
-                dot.classList.remove('bg-orange-500', 'w-4'); // Redup & membulat
-                dot.classList.add('bg-white/30');
-            }
-        });
-    };
-}
 
         function closePreview() { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = 'auto'; }
         function nextSlide() { slider.scrollBy({ left: slider.offsetWidth, behavior: 'smooth' }); }
