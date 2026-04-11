@@ -33,6 +33,21 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .tab-active { color: #ff5722; border-bottom: 2px solid #ff5722; opacity: 1 !important; }
+
+        /* FIXED DOTS OVERFLOW STYLE - Agar titik tidak meluber keluar layar */
+#modalDots { 
+    max-width: 140px; /* Batas lebar tampilan titik */
+    overflow: hidden; 
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+#dotWrapper {
+    display: flex;
+    gap: 8px;
+    transition: transform 0.3s ease; /* Efek halus saat titik bergeser */
+    padding: 5px 0;
+}
     </style>
 </head>
 
@@ -338,7 +353,11 @@
                 <div id="modalSlider" class="w-full flex overflow-x-auto snap-x snap-mandatory"></div>
                 <button onclick="nextSlide()" class="absolute right-4 bg-black/20 hover:bg-black/40 text-white p-3 rounded-full hidden md:block z-[110]">→</button>
             </div>
-            <div id="modalDots" class="flex gap-2 mt-6 z-[110]"></div>
+            
+            <!-- FIXED DOTS AREA -->
+            <div id="modalDots" class="mt-6 z-[110]">
+                <div id="dotWrapper"></div>
+            </div>
         </div>
     </div>
 
