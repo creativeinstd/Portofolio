@@ -36,18 +36,22 @@
 
         /* FIXED DOTS OVERFLOW STYLE - Agar titik tidak meluber keluar layar */
 #modalDots { 
-    max-width: 140px; /* Batas lebar tampilan titik */
-    overflow: hidden; 
-    position: relative;
-    display: flex;
-    justify-content: center;
-}
-#dotWrapper {
-    display: flex;
-    gap: 8px;
-    transition: transform 0.3s ease; /* Efek halus saat titik bergeser */
-    padding: 5px 0;
-}
+            width: 100px; /* Lebar jendela tampilan titik */
+            height: 20px;
+            overflow: hidden; 
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        #dotWrapper {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            left: 0;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
     </style>
 </head>
 
@@ -409,15 +413,9 @@
             const images = element.getAttribute('data-images').split(',');
             const category = element.getAttribute('data-category');
             modalCategory.innerText = category || 'Work';
-            slider.innerHTML = ''; 
-            
-            // Ambil Wrapper Titik
-            const dotWrapper = document.getElementById('dotWrapper');
-            dotWrapper.innerHTML = '';
-            // Reset posisi wrapper ke awal setiap kali modal dibuka
+            slider.innerHTML = ''; dotWrapper.innerHTML = '';
             dotWrapper.style.transform = `translateX(0px)`;
 
-            // 1. Render Gambar ke Slider
             images.forEach((src) => {
                 const slide = document.createElement('div');
                 slide.className = 'slide-item';
@@ -425,19 +423,15 @@
                 slider.appendChild(slide);
             });
 
-            // 2. Render Titik (Dots) ke Wrapper
             images.forEach((_, index) => {
                 const dot = document.createElement('div');
-                // Titik pertama otomatis aktif (orange & lebar)
-                dot.className = `w-2 h-2 rounded-full flex-shrink-0 bg-white/30 transition-all duration-300 dot-indicator ${index === 0 ? 'bg-orange-500 w-4' : ''}`;
+                dot.className = `w-1.5 h-1.5 rounded-full flex-shrink-0 bg-white/30 transition-all duration-300 dot-indicator ${index === 0 ? 'bg-orange-500 w-4' : ''}`;
                 dotWrapper.appendChild(dot);
             });
 
-            modal.classList.remove('hidden'); 
-            modal.classList.add('flex');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
-
-            // 3. Logika Geser Otomatis Titik agar Tetap di Tengah
+            
             slider.onscroll = () => {
                 const activeIndex = Math.round(slider.scrollLeft / slider.offsetWidth);
                 const dots = document.querySelectorAll('.dot-indicator');
@@ -445,19 +439,15 @@
                 
                 dots.forEach((dot, i) => {
                     if(i === activeIndex) {
-                        dot.classList.add('bg-orange-500', 'w-4');
+                        dot.classList.add('bg-orange-600', 'w-4');
                         dot.classList.remove('bg-white/30');
                         
-                        // HITUNG POSISI TENGAH:
-                        // Geser dotWrapper agar dot yang aktif berada di tengah-tengah #modalDots
+                        // FIX: Logic centering dot wrapper
                         const dotCenter = dot.offsetLeft + (dot.offsetWidth / 2);
                         const containerCenter = container.offsetWidth / 2;
-                        let scrollPos = dotCenter - containerCenter;
-
-                        // Terapkan pergeseran (Transform)
-                        dotWrapper.style.transform = `translateX(${-scrollPos}px)`;
+                        dotWrapper.style.transform = `translateX(${- (dotCenter - containerCenter)}px)`;
                     } else {
-                        dot.classList.remove('bg-orange-500', 'w-4');
+                        dot.classList.remove('bg-orange-600', 'w-4');
                         dot.classList.add('bg-white/30');
                     }
                 });
