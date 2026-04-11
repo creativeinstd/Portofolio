@@ -27,9 +27,25 @@
         .glass-tag { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); z-index: 10; }
         .dark .glass-tag { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); }
         .feed-carousel-icon { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        #modalSlider { scroll-snap-type: x mandatory; scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
+        #modalSlider { 
+            scroll-snap-type: x mandatory; 
+            scroll-behavior: smooth; 
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+            overscroll-behavior-x: contain; /* Mencegah geser gak sengaja keluar aplikasi/browser */
+        }
         #modalSlider::-webkit-scrollbar { display: none; }
-        .slide-item { scroll-snap-align: center; flex-shrink: 0; width: 100%; display: flex; justify-content: center; align-items: center; padding: 0 10px; }
+        
+        .slide-item { 
+            scroll-snap-align: center; 
+            scroll-snap-stop: always; /* FIX: Membuat slide "lengket", tidak akan double slide */
+            flex-shrink: 0; 
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 0 10px; 
+        }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .tab-active { color: #ff5722; border-bottom: 2px solid #ff5722; opacity: 1 !important; }
