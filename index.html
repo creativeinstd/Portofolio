@@ -390,26 +390,49 @@
             const images = element.getAttribute('data-images').split(',');
             const category = element.getAttribute('data-category');
             modalCategory.innerText = category || 'Work';
-            slider.innerHTML = ''; dotsContainer.innerHTML = '';
+            slider.innerHTML = ''; dotWrapper.innerHTML = '';
 
-            images.forEach((src, index) => {
+            // Render Slides
+            images.forEach((src) => {
                 const slide = document.createElement('div');
                 slide.className = 'slide-item';
                 slide.innerHTML = `<img src="${src.trim()}" class="max-h-[75vh] w-auto object-contain rounded-2xl md:rounded-[40px] shadow-2xl transition">`;
                 slider.appendChild(slide);
+            });
+
+            // Render Dots (Semuanya dibuat di dalam wrapper rahasia)
+            images.forEach((_, index) => {
                 const dot = document.createElement('div');
-                dot.className = `w-2 h-2 rounded-full bg-white/30 transition-all dot-indicator ${index === 0 ? 'bg-orange-500 w-4' : ''}`;
-                dotsContainer.appendChild(dot);
+                dot.className = `w-2 h-2 rounded-full flex-shrink-0 bg-white/30 transition-all dot-indicator ${index === 0 ? 'bg-orange-500 w-4' : ''}`;
+                dotWrapper.appendChild(dot);
             });
 
             modal.classList.remove('hidden'); modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
+            
+            // Logic sliding dots Instagram Style
             slider.onscroll = () => {
                 const activeIndex = Math.round(slider.scrollLeft / slider.offsetWidth);
-                document.querySelectorAll('.dot-indicator').forEach((dot, i) => {
-                    dot.className = `w-2 h-2 rounded-full transition-all dot-indicator ${i === activeIndex ? 'bg-orange-500 w-4' : 'bg-white/30'}`;
+                const dots = document.querySelectorAll('.dot-indicator');
+                
+                dots.forEach((dot, i) => {
+                    if(i === activeIndex) {
+                        dot.classList.add('bg-orange-500', 'w-4');
+                        dot.classList.remove('bg-white/30');
+                        
+                        // Menghitung posisi geser wadah titik agar titik aktif tetap di tengah
+                        const containerWidth = document.getElementById('modalDots').offsetWidth;
+                        const dotOffset = dot.offsetLeft;
+                        const scrollPos = dotOffset - (containerWidth / 2) + (dot.offsetWidth / 2);
+                        dotWrapper.style.transform = `translateX(-${scrollPos}px)`;
+                    } else {
+                        dot.classList.remove('bg-orange-500', 'w-4');
+                        dot.classList.add('bg-white/30');
+                    }
                 });
             };
+            // Reset position dot wrapper saat buka pertama kali
+            dotWrapper.style.transform = `translateX(0px)`;
         }
 
         function closePreview() { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = 'auto'; }
