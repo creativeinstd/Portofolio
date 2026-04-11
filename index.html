@@ -68,6 +68,12 @@
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: transform;
         }
+        /* ANIMASI PANAH GESER MOBILE */
+@keyframes bounceRight {
+    0%, 100% { transform: translateX(0); opacity: 1; }
+    50% { transform: translateX(6px); opacity: 0.5; }
+}
+.animate-bounce-right { animation: bounceRight 1.2s infinite; }
     </style>
 </head>
 
@@ -135,6 +141,13 @@
             <!--  <button onclick="changeTab(event, 'tab-kat2')" class="tab-link pb-2 text-sm font-bold uppercase tracking-widest transition opacity-40 whitespace-nowrap">Kategori 2</button>  -->
        <!-- <button onclick="changeTab(event, 'tab-kat3')" class="tab-link pb-2 text-sm font-bold uppercase tracking-widest transition opacity-40 whitespace-nowrap">Kategori 3</button>  -->
     </div>
+
+    <!-- PANAH PEMBERITAHUAN (Hanya muncul di mobile) -->
+    <div id="scrollHint" class="md:hidden absolute right-4 top-1/2 -translate-y-1/2 z-[45] pointer-events-none flex items-center gap-1 text-orange-600 animate-bounce-right transition-opacity duration-500">
+        <span class="text-[9px] font-black uppercase tracking-tighter bg-white dark:bg-black px-1">Geser</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>
+    </div>
+</div>
 
     <!-- 5. FEED PORTFOLIO GALLERY -->
     <section class="pb-32 px-4 md:px-12">
@@ -410,6 +423,21 @@
                 sunIcon.classList.add('hidden'); moonIcon.classList.remove('hidden');
             }
         });
+
+        // LOGIKA MENGHILANGKAN PANAH SAAT DI-SCROLL
+const tabBar = document.getElementById('tabBarScroll');
+const scrollHint = document.getElementById('scrollHint');
+
+if(tabBar && scrollHint) {
+    tabBar.addEventListener('scroll', () => {
+        // Jika sudah digeser lebih dari 20px, sembunyikan panah
+        if (tabBar.scrollLeft > 20) { 
+            scrollHint.style.opacity = '0'; 
+        } else { 
+            scrollHint.style.opacity = '1'; 
+        }
+    }, { passive: true });
+}
 
         function changeTab(evt, tabName) {
             const contents = document.getElementsByClassName("tab-content");
