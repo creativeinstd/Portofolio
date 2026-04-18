@@ -568,30 +568,33 @@
         function prevSlide() { slider.scrollBy({ left: -slider.offsetWidth, behavior: 'smooth' }); }
 
         
-        // --- FITUR AUTO-POST VIA BEHOLD.SO ---
+       // --- FITUR AUTO-POST VIA BEHOLD.SO (VERSI PERBAIKAN) ---
 const BEHOLD_API_URL = 'https://feeds.behold.so/VHHLMnljYyDAu4Qr6vyg'; 
 
 async function fetchInstagramFromBehold() {
-    // Target container tab Sosial Media
+    // Pastikan target container benar
     const container = document.querySelector('#tab-sosmed .columns-2'); 
     
     try {
         const response = await fetch(BEHOLD_API_URL);
         const posts = await response.json();
 
+        // Cek di console (F12) jika data masuk atau tidak
+        console.log("Data Instagram:", posts);
+
         if (!posts || posts.length === 0) return;
 
         posts.forEach(post => {
-            // 1. Ambil Gambar Utama
-            let mainImg = post.mediaUrl;
+            // FIX: Gunakan media_url (pakai garis bawah), bukan mediaUrl
+            let mainImg = post.media_url;
             
-            // 2. Ambil Semua Gambar jika Carousel (Behold menggunakan format array)
-            let allImages = post.mediaUrl;
+            // FIX: Ambil Semua Gambar jika Carousel
+            let allImages = post.media_url;
             if (post.children && post.children.length > 0) {
-                allImages = post.children.map(child => child.mediaUrl).join(',');
+                allImages = post.children.map(child => child.media_url).join(',');
             }
 
-            // 3. Template HTML (100% Mengikuti Style Anda)
+            // Template HTML (100% Tetap Sama)
             const itemHTML = `
                 <div class="masonry-item group cursor-pointer relative rounded-2xl md:rounded-[40px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm" 
                      onclick="openPreview(this)" 
@@ -604,7 +607,7 @@ async function fetchInstagramFromBehold() {
                         <div class="px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-md bg-orange-600/20 backdrop-blur-lg border border-orange-500/30 text-[7px] md:text-[10px] font-bold text-white uppercase tracking-wider">
                             Live IG
                         </div>
-                        ${post.children ? `
+                        ${post.children && post.children.length > 0 ? `
                         <div class="text-white feed-carousel-icon p-1 md:p-1.5 rounded-lg shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H88a16,16,0,0,0-16,16V72H56A16,16,0,0,0,40,88V216a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM184,216H56V88H184V216Zm32-32H200V88a16,16,0,0,0-16-16H88V56H216V184Z"></path></svg>
                         </div>` : ''}
@@ -612,7 +615,6 @@ async function fetchInstagramFromBehold() {
                 </div>
             `;
 
-            // Masukkan ke feed
             container.insertAdjacentHTML('beforeend', itemHTML);
         });
     } catch (error) {
@@ -620,7 +622,6 @@ async function fetchInstagramFromBehold() {
     }
 }
 
-// Jalankan saat web dibuka
 fetchInstagramFromBehold();
     </script>
 </body>
