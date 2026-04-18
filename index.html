@@ -574,32 +574,29 @@
     const BEHOLD_API_URL = 'https://feeds.behold.so/VHHLMnljYyDAu4Qr6vyg'; 
 
     async function fetchInstagramFromBehold() {
-    // Selector yang lebih fleksibel: mencari div pertama di dalam tab-sosmed
     const container = document.querySelector('#tab-sosmed div[class*="columns-"]'); 
-    
-    if (!container) {
-        console.error("Wadah feed tidak ditemukan! Periksa ID #tab-sosmed");
-        return;
-    }
+    if (!container) return;
 
     try {
         const response = await fetch(BEHOLD_API_URL);
-        
-        if (!response.ok) throw new Error("Gagal memuat data dari Behold (Cek Whitelist Domain)");
-        
-        const posts = await response.json();
-        console.log("Data Behold Berhasil Dimuat:", posts); // Lihat di Console (F12)
+        const result = await response.json();
 
-        if (!posts || posts.length === 0) return;
+        // FIX: Karena Behold mengirim objek, kita ambil bagian 'posts'-nya saja
+        const dataPosts = result.posts; 
 
-        posts.forEach(post => {
-            // Deteksi media_url dari berbagai versi Behold
-            let mainImg = post.media_url || post.mediaUrl;
+        if (!dataPosts || !Array.isArray(dataPosts)) {
+            console.error("Data postingan tidak ditemukan dalam respon API.");
+            return;
+        }
+
+        dataPosts.forEach(post => {
+            // Behold v1 menggunakan mediaUrl atau media_url
+            let mainImg = post.mediaUrl || post.media_url;
             
             // Logika Carousel
             let allImages = mainImg;
             if (post.children && post.children.length > 0) {
-                allImages = post.children.map(child => child.media_url || child.mediaUrl).join(',');
+                allImages = post.children.map(child => child.mediaUrl || child.media_url).join(',');
             }
 
             const itemHTML = `
@@ -623,8 +620,11 @@
             `;
             container.insertAdjacentHTML('beforeend', itemHTML);
         });
+
+        console.log("Instagram Feed Berhasil Ditampilkan!");
+
     } catch (error) {
-        console.error("Error Behold:", error.message);
+        console.error("Error Behold:", error);
     }
 }
 
