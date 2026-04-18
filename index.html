@@ -570,61 +570,70 @@
     function nextSlide() { slider.scrollBy({ left: slider.offsetWidth, behavior: 'smooth' }); }
     function prevSlide() { slider.scrollBy({ left: -slider.offsetWidth, behavior: 'smooth' }); }
 
-    // --- DIRECT INSTAGRAM API AUTOMATION ---
-    // GANTI TOKEN ANDA DI SINI (Berlaku 60 Hari)
-    const IG_ACCESS_TOKEN = 'IGAATGVCmYAONBZAFpjZA3A4WEYycjdnRVdaclpnWDNEQmh0UHJGTDBvS3h6MllkaXBIZAVpib041d2NXVktfX09DZAWNGU0NGQm9JTW1jS19pbWN6VUFpZAmw5YUZAhM0xxRlFCWXV1Ql9HZA19pVmdOendrTjhTVXFCU0w2bzJYLTFzQQZDZD'; 
+    // --- DIRECT INSTAGRAM API AUTOMATION (VERSI PERBAIKAN) ---
+        const IG_ACCESS_TOKEN = 'IGAATGVCmYAONBZAFpjZA3A4WEYycjdnRVdaclpnWDNEQmh0UHJGTDBvS3h6MllkaXBIZAVpib041d2NXVktfX09DZAWNGU0NGQm9JTW1jS19pbWN6VUFpZAmw5YUZAhM0xxRlFCWXV1Ql9HZA19pVmdOendrTjhTVXFCU0w2bzJYLTFzQQZDZD'; 
 
-    async function fetchInstagramDirect() {
-        const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,children{media_url}&access_token=${IG_ACCESS_TOKEN}`;
-        try {
-            const response = await fetch(url);
-            const result = await response.json();
-            const posts = result.data;
-            if (!posts) return;
+        async function fetchInstagramDirect() {
+            const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,children{media_url}&access_token=${IG_ACCESS_TOKEN}`;
+            try {
+                const response = await fetch(url);
+                const result = await response.json();
+                const posts = result.data;
+                if (!posts) return;
 
-            posts.forEach(post => {
-                let caption = post.caption ? post.caption.toLowerCase() : "";
-                
-                // 1. Logika Tab Berdasarkan Hashtag di Caption
-                let targetTab = "tab-sosmed"; 
-                if (caption.includes("#logo")) targetTab = "tab-logo";
-                else if (caption.includes("#layout")) targetTab = "tab-layout";
-                else if (caption.includes("#3d")) targetTab = "tab-3d";
+                posts.forEach(post => {
+                    let caption = post.caption ? post.caption.toLowerCase() : "";
+                    
+                    // 1. Logika Tab Berdasarkan Hashtag di Caption
+                    let targetTab = "tab-sosmed"; 
+                    if (caption.includes("#logo")) targetTab = "tab-logo";
+                    else if (caption.includes("#layout")) targetTab = "tab-layout";
+                    else if (caption.includes("#3d")) targetTab = "tab-3d";
 
-                // 2. Logika Nama Label Berdasarkan Hashtag Pertama yang ditemukan
-               let hashtags = caption.match(/#(\w+)/g);
-let tag1 = "CREATIVE"; // Default label orange di feed
-let tag2 = "WORK";     // Default tag glass di preview
+                    // 2. LOGIKA HASHTAG DINAMIS (Tag 1 = Feed, Tag 2 = Preview)
+                    let hashtags = caption.match(/#(\w+)/g);
+                    let tag1 = "CREATIVE"; // Default label orange di feed
+                    let tag2 = "WORK";     // Default tag glass di preview
 
-if (hashtags) {
-    // Tag 1 mengambil hashtag urutan ke-1
-    tag1 = hashtags[0].replace("#", "").toUpperCase();
-    
-    // Tag 2 mengambil hashtag urutan ke-2 (jika tidak ada ke-2, pakai yang ke-1)
-    tag2 = (hashtags.length >= 2) ? hashtags[1].replace("#", "").toUpperCase() : tag1;
-}
+                    if (hashtags) {
+                        // Tag 1 mengambil hashtag urutan ke-1
+                        tag1 = hashtags[0].replace("#", "").toUpperCase();
+                        // Tag 2 mengambil hashtag urutan ke-2 (jika tidak ada ke-2, pakai yang ke-1)
+                        tag2 = (hashtags.length >= 2) ? hashtags[1].replace("#", "").toUpperCase() : tag1;
+                    }
 
+                    // 3. Cari wadah kolom di dalam tab
+                    const container = document.querySelector(`#${targetTab} div.columns-2`);
+                    if (!container) return;
 
-                // 3. Carousel Handling
-                let allImgLinks = post.media_url;
-                if (post.children) {
-                    allImgLinks = post.children.data.map(c => c.media_url).join(',');
-                }
+                    // 4. Carousel Handling
+                    let allImgLinks = post.media_url;
+                    if (post.children) {
+                        allImgLinks = post.children.data.map(c => c.media_url).join(',');
+                    }
 
-                const itemHTML = `
-                    <div class="masonry-item group cursor-pointer relative rounded-2xl md:rounded-[40px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm" 
-                         onclick="openPreview(this)" data-category="${labelName}" data-images="${allImgLinks}">
-                        <img src="${post.media_url}" class="w-full transition duration-700 hover:scale-105">
-                        <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center gap-1.5 md:gap-2 z-10">
-                            <div class="px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-md bg-orange-600/20 backdrop-blur-lg border border-orange-500/30 text-[7px] md:text-[10px] font-bold text-white uppercase tracking-wider">${labelName}</div>
-                            ${post.children ? `<div class="text-white feed-carousel-icon p-1 md:p-1.5 rounded-lg shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H88a16,16,0,0,0-16,16V72H56A16,16,0,0,0,40,88V216a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM184,216H56V88H184V216Zm32-32H200V88a16,16,0,0,0-16-16H88V56H216V184Z"></path></svg></div>` : ''}
-                        </div>
-                    </div>`;
-                container.insertAdjacentHTML('beforeend', itemHTML);
-            });
-        } catch (e) { console.error("Instagram API Error", e); }
-    }
-    fetchInstagramDirect();
+                    // 5. Template Feed (PASTIKAN Variabel tag1 dan tag2 dipasang di sini)
+                    const itemHTML = `
+                        <div class="masonry-item group cursor-pointer relative rounded-2xl md:rounded-[40px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm" 
+                             onclick="openPreview(this)" 
+                             data-category="${tag2}" 
+                             data-images="${allImgLinks}">
+                            
+                            <img src="${post.media_url}" class="w-full transition duration-700 hover:scale-105">
+                            
+                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center gap-1.5 md:gap-2 z-10">
+                                <!-- Label Orange (Menggunakan Tag 1) -->
+                                <div class="px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-md bg-orange-600/20 backdrop-blur-lg border border-orange-500/30 text-[7px] md:text-[10px] font-bold text-white uppercase tracking-wider">
+                                    ${tag1}
+                                </div>
+                                ${post.children ? `<div class="text-white feed-carousel-icon p-1 md:p-1.5 rounded-lg shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H88a16,16,0,0,0-16,16V72H56A16,16,0,0,0,40,88V216a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM184,216H56V88H184V216Zm32-32H200V88a16,16,0,0,0-16-16H88V56H216V184Z"></path></svg></div>` : ''}
+                            </div>
+                        </div>`;
+                    container.insertAdjacentHTML('beforeend', itemHTML);
+                });
+            } catch (e) { console.error("Instagram API Error", e); }
+        }
+        fetchInstagramDirect();
     </script>
 </body>
 </html>
