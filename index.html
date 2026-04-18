@@ -460,169 +460,167 @@
 
     <!-- 8. LOGIC (SISTEM) - JANGAN DIUBAH -->
     <script>
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const themeText = document.getElementById('theme-text');
-        const sunIcon = document.getElementById('sun-icon');
-        const moonIcon = document.getElementById('moon-icon');
-        const html = document.documentElement;
+    // 1. TEMA: DARK / LIGHT MODE
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeText = document.getElementById('theme-text');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+    const html = document.documentElement;
 
-        themeToggleBtn.addEventListener('click', function() {
-            html.classList.toggle('dark');
-            if (html.classList.contains('dark')) {
-                themeText.innerText = "Light Mode";
-                sunIcon.classList.remove('hidden'); moonIcon.classList.add('hidden');
-            } else {
-                themeText.innerText = "Dark Mode";
-                sunIcon.classList.add('hidden'); moonIcon.classList.remove('hidden');
+    themeToggleBtn.addEventListener('click', function() {
+        html.classList.toggle('dark');
+        if (html.classList.contains('dark')) {
+            themeText.innerText = "Light Mode";
+            sunIcon.classList.remove('hidden'); moonIcon.classList.add('hidden');
+        } else {
+            themeText.innerText = "Dark Mode";
+            sunIcon.classList.add('hidden'); moonIcon.classList.remove('hidden');
+        }
+    });
+
+    // 2. LOGIKA DINAMIS IKON GESER (TAB)
+    const tabBar = document.getElementById('tabBarScroll');
+    const scrollHint = document.getElementById('scrollHint');
+    if(tabBar && scrollHint) {
+        tabBar.addEventListener('scroll', () => {
+            if (tabBar.scrollLeft > 30) { 
+                scrollHint.style.opacity = '0';
+                scrollHint.style.visibility = 'hidden';
+            } else { 
+                scrollHint.style.opacity = '1';
+                scrollHint.style.visibility = 'visible';
             }
-        });
-
-        // LOGIKA DINAMIS IKON GESER
-        const tabBar = document.getElementById('tabBarScroll');
-        const scrollHint = document.getElementById('scrollHint');
-
-        if(tabBar && scrollHint) {
-            tabBar.addEventListener('scroll', () => {
-                // Jika user menggeser lebih dari 30px, ikon menghilang halus
-                if (tabBar.scrollLeft > 30) { 
-                    scrollHint.style.opacity = '0';
-                    scrollHint.style.visibility = 'hidden';
-                } else { 
-                    scrollHint.style.opacity = '1';
-                    scrollHint.style.visibility = 'visible';
-                }
-            }, { passive: true });
-        }
-
-        function changeTab(evt, tabName) {
-            const contents = document.getElementsByClassName("tab-content");
-            for (let i = 0; i < contents.length; i++) { contents[i].classList.add("hidden"); contents[i].classList.remove("block"); }
-            const links = document.getElementsByClassName("tab-link");
-            for (let i = 0; i < links.length; i++) { links[i].classList.remove("tab-active"); links[i].classList.add("opacity-40"); }
-            document.getElementById(tabName).classList.remove("hidden");
-            document.getElementById(tabName).classList.add("block");
-            evt.currentTarget.classList.add("tab-active");
-            evt.currentTarget.classList.remove("opacity-40");
-        }
-
-        const modal = document.getElementById('previewModal');
-        const slider = document.getElementById('modalSlider');
-        const dotsContainer = document.getElementById('modalDots');
-        const modalCategory = document.getElementById('modalCategory');
-
-         function openPreview(element) {
-            const images = element.getAttribute('data-images').split(',');
-            const category = element.getAttribute('data-category');
-            slider.innerHTML = ''; 
-            dotWrapper.innerHTML = '';
-            dotWrapper.style.transform = `translateX(0px)`;
-
-            images.forEach((src) => {
-                const slide = document.createElement('div');
-                slide.className = 'slide-item';
-                // HEADER (TAG & X) DITEMPELKAN DI ATAS FOTO
-                slide.innerHTML = `
-                    <div class="relative inline-flex flex-col items-center">
-                        <div class="w-full flex justify-between items-center mb-3 px-1">
-                            <div class="glass-tag px-3 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-white shadow-xl">
-                                ${category}
-                            </div>
-                            <button onclick="closePreview()" class="text-white/50 hover:text-white text-2xl transition">✕</button>
-                        </div>
-                        <img src="${src.trim()}" class="max-h-[75vh] w-auto object-contain rounded-2xl md:rounded-[40px] shadow-2xl transition">
-                    </div>`;
-                slider.appendChild(slide);
-            });
-
-            images.forEach((_, index) => {
-                const dot = document.createElement('div');
-                dot.className = `w-1.5 h-1.5 rounded-full flex-shrink-0 bg-white/30 transition-all duration-300 dot-indicator ${index === 0 ? 'bg-orange-600 w-4' : ''}`;
-                dotWrapper.appendChild(dot);
-            });
-
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-            document.body.style.overflow = 'hidden';
-            
-            slider.onscroll = () => {
-                const activeIndex = Math.round(slider.scrollLeft / slider.offsetWidth);
-                const dots = document.querySelectorAll('.dot-indicator');
-                const container = document.getElementById('modalDots');
-                
-                dots.forEach((dot, i) => {
-                    if(i === activeIndex) {
-                        dot.classList.add('bg-orange-600', 'w-4');
-                        dot.classList.remove('bg-white/30');
-                        const dotCenter = dot.offsetLeft + (dot.offsetWidth / 2);
-                        const containerCenter = container.offsetWidth / 2;
-                        dotWrapper.style.transform = `translateX(${- (dotCenter - containerCenter)}px)`;
-                    } else {
-                        dot.classList.remove('bg-orange-600', 'w-4');
-                        dot.classList.add('bg-white/30');
-                    }
-                });
-            };
-        }
-        
-        function closePreview() { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = 'auto'; }
-        function nextSlide() { slider.scrollBy({ left: slider.offsetWidth, behavior: 'smooth' }); }
-        function prevSlide() { slider.scrollBy({ left: -slider.offsetWidth, behavior: 'smooth' }); }
-
-        
-       // --- FITUR AUTO-POST VIA BEHOLD.SO (VERSI PERBAIKAN) ---
-const BEHOLD_API_URL = 'https://feeds.behold.so/VHHLMnljYyDAu4Qr6vyg'; 
-
-async function fetchInstagramFromBehold() {
-    // Pastikan target container benar
-    const container = document.querySelector('#tab-sosmed .columns-2'); 
-    
-    try {
-        const response = await fetch(BEHOLD_API_URL);
-        const posts = await response.json();
-
-        // Cek di console (F12) jika data masuk atau tidak
-        console.log("Data Instagram:", posts);
-
-        if (!posts || posts.length === 0) return;
-
-        posts.forEach(post => {
-            // FIX: Gunakan media_url (pakai garis bawah), bukan mediaUrl
-            let mainImg = post.media_url;
-            
-            // FIX: Ambil Semua Gambar jika Carousel
-            let allImages = post.media_url;
-            if (post.children && post.children.length > 0) {
-                allImages = post.children.map(child => child.media_url).join(',');
-            }
-
-            // Template HTML (100% Tetap Sama)
-            const itemHTML = `
-                <div class="masonry-item group cursor-pointer relative rounded-2xl md:rounded-[40px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm" 
-                     onclick="openPreview(this)" 
-                     data-category="Instagram Feed" 
-                     data-images="${allImages}">
-                    
-                    <img src="${mainImg}" class="w-full transition duration-700 hover:scale-105">
-                    
-                    <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center gap-1.5 md:gap-2 z-10">
-                        <div class="px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-md bg-orange-600/20 backdrop-blur-lg border border-orange-500/30 text-[7px] md:text-[10px] font-bold text-white uppercase tracking-wider">
-                            Live IG
-                        </div>
-                        ${post.children && post.children.length > 0 ? `
-                        <div class="text-white feed-carousel-icon p-1 md:p-1.5 rounded-lg shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H88a16,16,0,0,0-16,16V72H56A16,16,0,0,0,40,88V216a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM184,216H56V88H184V216Zm32-32H200V88a16,16,0,0,0-16-16H88V56H216V184Z"></path></svg>
-                        </div>` : ''}
-                    </div>
-                </div>
-            `;
-
-            container.insertAdjacentHTML('beforeend', itemHTML);
-        });
-    } catch (error) {
-        console.error("Gagal koneksi ke Behold:", error);
+        }, { passive: true });
     }
-}
 
-fetchInstagramFromBehold();
-    </script>
+    // 3. TAB SWITCH LOGIC
+    function changeTab(evt, tabName) {
+        const contents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < contents.length; i++) { contents[i].classList.add("hidden"); contents[i].classList.remove("block"); }
+        const links = document.getElementsByClassName("tab-link");
+        for (let i = 0; i < links.length; i++) { links[i].classList.remove("tab-active"); links[i].classList.add("opacity-40"); }
+        document.getElementById(tabName).classList.remove("hidden");
+        document.getElementById(tabName).classList.add("block");
+        evt.currentTarget.classList.add("tab-active");
+        evt.currentTarget.classList.remove("opacity-40");
+    }
+
+    // 4. PREVIEW MODAL LOGIC
+    const modal = document.getElementById('previewModal');
+    const slider = document.getElementById('modalSlider');
+    const modalDotsContainer = document.getElementById('modalDots'); // Container utama dots
+
+    function openPreview(element) {
+        const images = element.getAttribute('data-images').split(',');
+        const category = element.getAttribute('data-category');
+        
+        // Definisikan dotWrapper di dalam fungsi agar tidak error
+        const dotWrapper = document.getElementById('dotWrapper');
+        
+        slider.innerHTML = ''; 
+        dotWrapper.innerHTML = '';
+        dotWrapper.style.transform = `translateX(0px)`;
+
+        images.forEach((src) => {
+            const slide = document.createElement('div');
+            slide.className = 'slide-item';
+            slide.innerHTML = `
+                <div class="relative inline-flex flex-col items-center">
+                    <div class="w-full flex justify-between items-center mb-3 px-1">
+                        <div class="glass-tag px-3 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-white shadow-xl">
+                            ${category}
+                        </div>
+                        <button onclick="closePreview()" class="text-white/50 hover:text-white text-2xl transition">✕</button>
+                    </div>
+                    <img src="${src.trim()}" class="max-h-[75vh] w-auto object-contain rounded-2xl md:rounded-[40px] shadow-2xl transition">
+                </div>`;
+            slider.appendChild(slide);
+        });
+
+        images.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.className = `w-1.5 h-1.5 rounded-full flex-shrink-0 bg-white/30 transition-all duration-300 dot-indicator ${index === 0 ? 'bg-orange-600 w-4' : ''}`;
+            dotWrapper.appendChild(dot);
+        });
+
+        modal.classList.remove('hidden'); 
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        
+        slider.onscroll = () => {
+            const activeIndex = Math.round(slider.scrollLeft / slider.offsetWidth);
+            const dots = document.querySelectorAll('.dot-indicator');
+            
+            dots.forEach((dot, i) => {
+                if(i === activeIndex) {
+                    dot.classList.add('bg-orange-600', 'w-4');
+                    dot.classList.remove('bg-white/30');
+                    const dotCenter = dot.offsetLeft + (dot.offsetWidth / 2);
+                    const containerCenter = modalDotsContainer.offsetWidth / 2;
+                    dotWrapper.style.transform = `translateX(${- (dotCenter - containerCenter)}px)`;
+                } else {
+                    dot.classList.remove('bg-orange-600', 'w-4');
+                    dot.classList.add('bg-white/30');
+                }
+            });
+        };
+    }
+    
+    function closePreview() { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = 'auto'; }
+    function nextSlide() { slider.scrollBy({ left: slider.offsetWidth, behavior: 'smooth' }); }
+    function prevSlide() { slider.scrollBy({ left: -slider.offsetWidth, behavior: 'smooth' }); }
+
+    // 5. --- FITUR AUTO-POST VIA BEHOLD.SO ---
+    const BEHOLD_API_URL = 'https://feeds.behold.so/VHHLMnljYyDAu4Qr6vyg'; 
+
+    async function fetchInstagramFromBehold() {
+        const container = document.querySelector('#tab-sosmed div.columns-2'); 
+        if (!container) return;
+
+        try {
+            const response = await fetch(BEHOLD_API_URL);
+            const posts = await response.json();
+
+            if (!posts || posts.length === 0) return;
+
+            posts.forEach(post => {
+                // Gunakan media_url (Behold v1 standar)
+                let mainImg = post.media_url || post.mediaUrl;
+                
+                // Cek Carousel
+                let allImages = mainImg;
+                if (post.children && post.children.length > 0) {
+                    allImages = post.children.map(child => child.media_url || child.mediaUrl).join(',');
+                }
+
+                const itemHTML = `
+                    <div class="masonry-item group cursor-pointer relative rounded-2xl md:rounded-[40px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm" 
+                         onclick="openPreview(this)" 
+                         data-category="Instagram Feed" 
+                         data-images="${allImages}">
+                        
+                        <img src="${mainImg}" class="w-full transition duration-700 hover:scale-105">
+                        
+                        <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center gap-1.5 md:gap-2 z-10">
+                            <div class="px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-md bg-orange-600/20 backdrop-blur-lg border border-orange-500/30 text-[7px] md:text-[10px] font-bold text-white uppercase tracking-wider">
+                                Live IG
+                            </div>
+                            ${(post.children && post.children.length > 0) ? `
+                            <div class="text-white feed-carousel-icon p-1 md:p-1.5 rounded-lg shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H88a16,16,0,0,0-16,16V72H56A16,16,0,0,0,40,88V216a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM184,216H56V88H184V216Zm32-32H200V88a16,16,0,0,0-16-16H88V56H216V184Z"></path></svg>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', itemHTML);
+            });
+        } catch (error) {
+            console.error("Gagal koneksi ke Behold:", error);
+        }
+    }
+
+    // Jalankan fetch
+    fetchInstagramFromBehold();
+</script>
 </body>
 </html>
