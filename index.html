@@ -592,11 +592,18 @@
                 else if (caption.includes("#3d")) targetTab = "tab-3d";
 
                 // 2. Logika Nama Label Berdasarkan Hashtag Pertama yang ditemukan
-                let hashtags = caption.match(/#(\w+)/g);
-                let labelName = hashtags ? hashtags[0].replace("#", "").toUpperCase() : "CREATIVE";
+               let hashtags = caption.match(/#(\w+)/g);
+let tag1 = "CREATIVE"; // Default label orange di feed
+let tag2 = "WORK";     // Default tag glass di preview
 
-                const container = document.querySelector(`#${targetTab} div`);
-                if (!container) return;
+if (hashtags) {
+    // Tag 1 mengambil hashtag urutan ke-1
+    tag1 = hashtags[0].replace("#", "").toUpperCase();
+    
+    // Tag 2 mengambil hashtag urutan ke-2 (jika tidak ada ke-2, pakai yang ke-1)
+    tag2 = (hashtags.length >= 2) ? hashtags[1].replace("#", "").toUpperCase() : tag1;
+}
+
 
                 // 3. Carousel Handling
                 let allImgLinks = post.media_url;
