@@ -570,66 +570,54 @@
     function nextSlide() { slider.scrollBy({ left: slider.offsetWidth, behavior: 'smooth' }); }
     function prevSlide() { slider.scrollBy({ left: -slider.offsetWidth, behavior: 'smooth' }); }
 
-    // 5. --- FITUR AUTO-POST VIA BEHOLD.SO ---
-    const BEHOLD_API_URL = 'https://feeds.behold.so/XwbL2grZX0VpX7zXxjoW'; 
+    // --- DIRECT INSTAGRAM API AUTOMATION ---
+    // GANTI TOKEN ANDA DI SINI (Berlaku 60 Hari)
+    const IG_ACCESS_TOKEN = 'IGAATGVCmYAONBZAFpjZA3A4WEYycjdnRVdaclpnWDNEQmh0UHJGTDBvS3h6MllkaXBIZAVpib041d2NXVktfX09DZAWNGU0NGQm9JTW1jS19pbWN6VUFpZAmw5YUZAhM0xxRlFCWXV1Ql9HZA19pVmdOendrTjhTVXFCU0w2bzJYLTFzQQZDZD'; 
 
-    async function fetchInstagramFromBehold() {
-    const container = document.querySelector('#tab-sosmed div[class*="columns-"]'); 
-    if (!container) return;
+    async function fetchInstagramDirect() {
+        const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,children{media_url}&access_token=${IG_ACCESS_TOKEN}`;
+        try {
+            const response = await fetch(url);
+            const result = await response.json();
+            const posts = result.data;
+            if (!posts) return;
 
-    try {
-        const response = await fetch(BEHOLD_API_URL);
-        const result = await response.json();
+            posts.forEach(post => {
+                let caption = post.caption ? post.caption.toLowerCase() : "";
+                
+                // 1. Logika Tab Berdasarkan Hashtag di Caption
+                let targetTab = "tab-sosmed"; 
+                if (caption.includes("#logo")) targetTab = "tab-logo";
+                else if (caption.includes("#layout")) targetTab = "tab-layout";
+                else if (caption.includes("#3d")) targetTab = "tab-3d";
 
-        // FIX: Karena Behold mengirim objek, kita ambil bagian 'posts'-nya saja
-        const dataPosts = result.posts; 
+                // 2. Logika Nama Label Berdasarkan Hashtag Pertama yang ditemukan
+                let hashtags = caption.match(/#(\w+)/g);
+                let labelName = hashtags ? hashtags[0].replace("#", "").toUpperCase() : "CREATIVE";
 
-        if (!dataPosts || !Array.isArray(dataPosts)) {
-            console.error("Data postingan tidak ditemukan dalam respon API.");
-            return;
-        }
+                const container = document.querySelector(`#${targetTab} div`);
+                if (!container) return;
 
-        dataPosts.forEach(post => {
-            // Behold v1 menggunakan mediaUrl atau media_url
-            let mainImg = post.mediaUrl || post.media_url;
-            
-            // Logika Carousel
-            let allImages = mainImg;
-            if (post.children && post.children.length > 0) {
-                allImages = post.children.map(child => child.mediaUrl || child.media_url).join(',');
-            }
+                // 3. Carousel Handling
+                let allImgLinks = post.media_url;
+                if (post.children) {
+                    allImgLinks = post.children.data.map(c => c.media_url).join(',');
+                }
 
-            const itemHTML = `
-                <div class="masonry-item group cursor-pointer relative rounded-2xl md:rounded-[40px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm" 
-                     onclick="openPreview(this)" 
-                     data-category="Instagram Feed" 
-                     data-images="${allImages}">
-                    
-                    <img src="${mainImg}" class="w-full transition duration-700 hover:scale-105">
-                    
-                    <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center gap-1.5 md:gap-2 z-10">
-                        <div class="px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-md bg-orange-600/20 backdrop-blur-lg border border-orange-500/30 text-[7px] md:text-[10px] font-bold text-white uppercase tracking-wider">
-                            Live IG
+                const itemHTML = `
+                    <div class="masonry-item group cursor-pointer relative rounded-2xl md:rounded-[40px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 shadow-sm" 
+                         onclick="openPreview(this)" data-category="${labelName}" data-images="${allImgLinks}">
+                        <img src="${post.media_url}" class="w-full transition duration-700 hover:scale-105">
+                        <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center gap-1.5 md:gap-2 z-10">
+                            <div class="px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-md bg-orange-600/20 backdrop-blur-lg border border-orange-500/30 text-[7px] md:text-[10px] font-bold text-white uppercase tracking-wider">${labelName}</div>
+                            ${post.children ? `<div class="text-white feed-carousel-icon p-1 md:p-1.5 rounded-lg shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H88a16,16,0,0,0-16,16V72H56A16,16,0,0,0,40,88V216a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM184,216H56V88H184V216Zm32-32H200V88a16,16,0,0,0-16-16H88V56H216V184Z"></path></svg></div>` : ''}
                         </div>
-                        ${(post.children && post.children.length > 0) ? `
-                        <div class="text-white feed-carousel-icon p-1 md:p-1.5 rounded-lg shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H88a16,16,0,0,0-16,16V72H56A16,16,0,0,0,40,88V216a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM184,216H56V88H184V216Zm32-32H200V88a16,16,0,0,0-16-16H88V56H216V184Z"></path></svg>
-                        </div>` : ''}
-                    </div>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', itemHTML);
-        });
-
-        console.log("Instagram Feed Berhasil Ditampilkan!");
-
-    } catch (error) {
-        console.error("Error Behold:", error);
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', itemHTML);
+            });
+        } catch (e) { console.error("Instagram API Error", e); }
     }
-}
-
-    // Jalankan fetch
-    fetchInstagramFromBehold();
-</script>
+    fetchInstagramDirect();
+    </script>
 </body>
 </html>
