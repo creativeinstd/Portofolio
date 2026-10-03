@@ -571,7 +571,7 @@
     function prevSlide() { slider.scrollBy({ left: -slider.offsetWidth, behavior: 'smooth' }); }
 
     // --- DIRECT INSTAGRAM API AUTOMATION (VERSI PERBAIKAN) ---
-        const IG_ACCESS_TOKEN = 'IGAATGVCmYAONBZAFpjZA3A4WEYycjdnRVdaclpnWDNEQmh0UHJGTDBvS3h6MllkaXBIZAVpib041d2NXVktfX09DZAWNGU0NGQm9JTW1jS19pbWN6VUFpZAmw5YUZAhM0xxRlFCWXV1Ql9HZA19pVmdOendrTjhTVXFCU0w2bzJYLTFzQQZDZD'; 
+        const IG_ACCESS_TOKEN = 'IGAAf84Mo5bOhBZAGFxZADRHaEVqOG9Hblk0amE4WjdiUHEtLUNMZATF3di1PSmxfbWJGOUpPb3d6NXlocjhtYTVRR1p0dkxfb05ucU9rWjBKWEhPczRqb1NWYU90Qm91bHRmbW5SZA0FPczRvWVhtV0hoLUZAQZAEtMcjBTZA1BVX0taOAZDZD'; 
 
         async function fetchInstagramDirect() {
             const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,children{media_url}&access_token=${IG_ACCESS_TOKEN}`;
